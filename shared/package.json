@@ -1,0 +1,9 @@
+{
+  "name": "@shared/schema",
+  "type": "module",
+  "main": "schema.js",
+  "exports": {
+    ".": "./schema.js",
+    "./schema": "./schema.js"
+  }
+}

@@ -1,0 +1,66 @@
+timestamp,content,author,channel
+2025-10-28 20:50:00,"DevHelper: is there anyone looking for dev?",Alex Chen,dev-community
+2025-10-28 20:51:00,"TechLead: Yes",TechLead,dev-community
+2025-10-28 20:52:00,"NewUser: Hello, is here anyone who could help me run a node? I can't seem to figure it out on my own. I have the hardware necessary to do it, and I have installed Ubuntu on a VM, I just don't have the necessary skills to figure it out on my own.",NewUser,dev-community
+2025-10-28 20:53:00,"Moderator: Please be careful of scams",Moderator,dev-community
+2025-10-28 20:54:00,"SupportBot: Open a support ticket and we will help you out",SupportBot,dev-community
+2025-10-28 20:55:00,"DevExpert: Hey NewUser. Check out the developer docs at https://docs.example.org/run-a-node/",DevExpert,dev-community
+2025-10-28 20:56:00,"Helper: Also check pinned messages in this channel",Helper,dev-community
+2025-10-28 20:57:00,"CryptoFan: Hi, do I get it right that a PoS single node needs >1000 tokens to get ~11% APR?",CryptoFan,dev-community
+2025-10-28 20:58:00,"SupportBot: Yes that is correct. A minimum of 1k tokens to stake and the APR is around 11.3%.",SupportBot,dev-community
+2025-10-28 20:59:00,"Helper: Average APR is 11.3%, but with only 1000 tokens it's hard to get voting rights.",Helper,dev-community
+2025-10-28 21:00:00,"Moderator: So, real APR will vary",Moderator,dev-community
+2025-10-28 21:01:00,"NodeRunner: Is there some way to prune old blocks? I don't want to waste 1+TB of NVME just to store blocks that aren't needed.",NodeRunner,dev-community
+2025-10-28 21:02:00,"Moderator: Why are you using a backslash to bypass the link protection",Moderator,dev-community
+2025-10-28 21:03:00,"Moderator: The two responses are a scam",Moderator,dev-community
+2025-10-28 21:04:00,"Helper: Another one?",Helper,dev-community
+2025-10-28 21:05:00,"DevExpert: @DevHelper",DevExpert,dev-community
+2025-10-28 21:06:00,"DevHelper: Maybe you should use a light node instead if you are concerned about storage: https://docs.example.org/node-types",DevHelper,dev-community
+2025-10-28 21:07:00,"NodeRunner: Light nodes cannot be used in PoS afaik",NodeRunner,dev-community
+2025-10-28 21:08:00,"NodeRunner: I want to run my PoS node but cannot waste 1+TB of NVME",NodeRunner,dev-community
+2025-10-28 21:09:00,"NodeRunner: Most chains have a prune function that allows you to delete old blocks and reduce disk usage",NodeRunner,dev-community
+2025-10-28 21:10:00,"DevExpert: From the guide: A PoS node is also a full node. Either a full node or an archive node is fine.",DevExpert,dev-community
+2025-10-28 21:11:00,"NodeRunner: No mention of light node",NodeRunner,dev-community
+2025-10-28 21:12:00,"Helper: You can use btrfs + compression to have more space available",Helper,dev-community
+2025-10-28 21:13:00,"Helper: Check pinned messages in developers channel",Helper,dev-community
+2025-10-28 21:14:00,"Helper: developers?",Helper,dev-community
+2025-10-28 21:15:00,"NodeRunner: Will try, thanks for the info!",NodeRunner,dev-community
+2025-10-28 21:16:00,"NodeRunner: I hope some prune function is added anyways, as storage will grow overtime",NodeRunner,dev-community
+2025-10-28 21:17:00,"NodeRunner: Still over a terabyte, will wait until something is done",NodeRunner,dev-community
+2025-10-28 21:18:00,"DevExpert: https://example.com/status/123456789",DevExpert,dev-community
+2025-10-28 21:19:00,"ValidatorUser: Hello everyone, I am running a node since last year and would like to become a solo validator. I read the official documentation but would like CLI documentation.",ValidatorUser,dev-community
+2025-10-28 21:20:00,"BlockchainDev: For now I can confirm the staking step that references the governance docs.",BlockchainDev,dev-community
+2025-10-28 21:21:00,"BlockchainDev: This should be the technical docs for the registration step https://docs.example.org/validator-register",BlockchainDev,dev-community
+2025-10-28 21:22:00,"Helper: @ValidatorUser I'm not 100% sure, but I remember reading something about wallet deprecation.",Helper,dev-community
+2025-10-28 21:23:00,"Helper: Otherwise you can use the RPC API with the SDK",Helper,dev-community
+2025-10-28 21:24:00,"Helper: I'm not sure if there is direct documentation for RPC API available",Helper,dev-community
+2025-10-28 21:25:00,"ValidatorUser: Hi @Helper you mean the software wallet? My plan was to use the RPC API with curl.",ValidatorUser,dev-community
+2025-10-28 21:26:00,"CryptoExpert: Any cryptocurrency expert here? I got an issue I need assistance with.",CryptoExpert,dev-community
+2025-10-28 21:27:00,"BlockchainDev: How can we help?",BlockchainDev,dev-community
+2025-10-28 21:28:00,"NewNodeRunner: Hello guys. I just downloaded the latest version, extracted the snapshot, but my node doesn't work at all.",NewNodeRunner,dev-community
+2025-10-28 21:29:00,"NewNodeRunner: Also, this chat is full of scammers.",NewNodeRunner,dev-community
+2025-10-28 21:30:00,"NewNodeRunner: I get an error each time I start the node.",NewNodeRunner,dev-community
+2025-10-28 21:31:00,"NewNodeRunner: I just edited the config file as type of node = full. Nothing else.",NewNodeRunner,dev-community
+2025-10-28 21:32:00,"Helper: /pos",Helper,dev-community
+2025-10-28 21:33:00,"InfoBot: Proof-of-Stake FAQ - Frequently Asked Questions",InfoBot,dev-community
+2025-10-28 21:34:00,"Helper: What's your system, OS, hardware?",Helper,dev-community
+2025-10-28 21:35:00,"NewNodeRunner: Solved the problem.",NewNodeRunner,dev-community
+2025-10-28 21:36:00,"Helper: What was the solution?",Helper,dev-community
+2025-10-28 21:37:00,"StakingUser: What's the benefit of being a node to help others stake?",StakingUser,dev-community
+2025-10-28 21:38:00,"StakingUser: Could you please answer the question I have asked?",StakingUser,dev-community
+2025-10-28 21:39:00,"DevExpert: When running a node, you can earn staking rewards, support the network's decentralized security, and have voting rights.",DevExpert,dev-community
+2025-10-28 21:40:00,"BlockchainDev: A PoS pool can take a percentage of earned rewards, so it can be profitable",BlockchainDev,dev-community
+2025-10-28 21:41:00,"BlockchainDev: A PoS node just allows you the owner to stake",BlockchainDev,dev-community
+2025-10-28 21:42:00,"StakingUser: Got it, which means that if there's more nodes, that would be more decentralized right?",StakingUser,dev-community
+2025-10-28 21:43:00,"BlockchainDev: Absolutely. More nodes is a good thing",BlockchainDev,dev-community
+2025-10-28 21:44:00,"ProtocolUser: Hello. According to GitHub, the hard fork is scheduled to activate on September 1st, but the page states August 31st. Which one?",ProtocolUser,dev-community
+2025-10-28 21:45:00,"BlockchainDev: You are right to use the block calculator, it will be more accurate.",BlockchainDev,dev-community
+2025-10-28 21:46:00,"DevHelper: Forwarded announcement: v3.0.1 Hardfork - upgrade required.",DevHelper,dev-community
+2025-10-28 21:47:00,"NodeOperator: Hi! We're experiencing sync issues with our mainnet node. The node remains stuck at epoch 130340000.",NodeOperator,dev-community
+2025-10-28 21:48:00,"Moderator: Why is this chat full of scams?",Moderator,dev-community
+2025-10-28 21:49:00,"DevExpert: Did you upgrade to latest software?",DevExpert,dev-community
+2025-10-28 21:50:00,"NodeOperator: Yes using the latest docker image",NodeOperator,dev-community
+2025-10-28 21:51:00,"Helper: How long did you wait for it to sync? Sometimes the launch can be slow",Helper,dev-community
+2025-10-28 21:52:00,"NodeOperator: Around 24 hours",NodeOperator,dev-community
+2025-10-28 21:53:00,"Helper: /pos",Helper,dev-community
+2025-10-28 21:54:00,"InfoBot: Proof-of-Stake FAQ",InfoBot,dev-community

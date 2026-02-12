@@ -1,0 +1,115 @@
+{
+  "instanceId": "default",
+  "pipelineId": "default-v2",
+  "description": "Default documentation analysis pipeline with Quality System integration",
+  "steps": [
+    {
+      "stepId": "keyword-filter",
+      "stepType": "filter",
+      "enabled": true,
+      "config": {
+        "includeKeywords": [],
+        "excludeKeywords": [],
+        "caseSensitive": false
+      }
+    },
+    {
+      "stepId": "batch-classify",
+      "stepType": "classify",
+      "enabled": true,
+      "config": {
+        "promptId": "thread-classification",
+        "model": "gemini-2.5-flash",
+        "temperature": 0.2,
+        "maxTokens": 32768
+      }
+    },
+    {
+      "stepId": "rag-enrich",
+      "stepType": "enrich",
+      "enabled": true,
+      "config": {
+        "topK": 5,
+        "minSimilarity": 0.7,
+        "deduplicateTranslations": true
+      }
+    },
+    {
+      "stepId": "proposal-generate",
+      "stepType": "generate",
+      "enabled": true,
+      "config": {
+        "promptId": "changeset-generation",
+        "model": "gemini-2.5-pro",
+        "temperature": 0.4,
+        "maxTokens": 32768,
+        "maxProposalsPerThread": 5
+      }
+    },
+    {
+      "stepId": "context-enrich",
+      "stepType": "context-enrich",
+      "enabled": true,
+      "config": {
+        "minSimilarityScore": 0.6,
+        "maxRelatedDocs": 5,
+        "enableDuplicationCheck": true,
+        "ngramSize": 3,
+        "duplicationThreshold": 50
+      }
+    },
+    {
+      "stepId": "ruleset-review",
+      "stepType": "ruleset-review",
+      "enabled": true,
+      "config": {
+        "enableRejection": true,
+        "enableModifications": true,
+        "enableQualityGates": true,
+        "modificationModel": "gemini-1.5-flash",
+        "maxModificationTokens": 4096
+      }
+    },
+    {
+      "stepId": "content-validate",
+      "stepType": "validate",
+      "enabled": true,
+      "config": {
+        "maxRetries": 2,
+        "promptId": "content-reformat",
+        "model": "gemini-2.5-flash",
+        "temperature": 0.2,
+        "maxTokens": 8192,
+        "skipPatterns": []
+      }
+    },
+    {
+      "stepId": "length-reduce",
+      "stepType": "condense",
+      "enabled": true,
+      "config": {
+        "defaultMaxLength": 3000,
+        "defaultTargetLength": 2000,
+        "priorityTiers": [
+          { "minPriority": 70, "maxLength": 5000, "targetLength": 3500 },
+          { "minPriority": 40, "maxLength": 3500, "targetLength": 2500 },
+          { "minPriority": 0, "maxLength": 2000, "targetLength": 1500 }
+        ],
+        "promptId": "content-condense",
+        "model": "gemini-2.5-flash",
+        "temperature": 0.3,
+        "maxTokens": 8192
+      }
+    }
+  ],
+  "errorHandling": {
+    "stopOnError": false,
+    "retryAttempts": 3,
+    "retryDelayMs": 5000
+  },
+  "performance": {
+    "maxConcurrentSteps": 1,
+    "timeoutMs": 300000,
+    "enableCaching": true
+  }
+}

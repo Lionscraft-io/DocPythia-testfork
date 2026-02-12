@@ -1,0 +1,64 @@
+{
+  "project": {
+    "name": "ExampleDocs AI",
+    "shortName": "example",
+    "description": "AI-powered documentation assistant for Example Project",
+    "domain": "exampledocs.ai",
+    "supportEmail": "support@example.org"
+  },
+  "branding": {
+    "logo": "https://example.org/images/logo.svg",
+    "favicon": "https://example.org/favicon.ico",
+    "primaryColor": "#00A3FF",
+    "secondaryColor": "#0D0D0D",
+    "accentColor": "#4ECDC4",
+    "darkModePrimaryColor": "#00A3FF",
+    "projectUrl": "https://example.org"
+  },
+  "documentation": {
+    "gitUrl": "https://github.com/example-org/documentation",
+    "branch": "main",
+    "docsPath": "docs"
+  },
+  "community": {
+    "zulip": {
+      "enabled": false
+    },
+    "telegram": {
+      "enabled": true,
+      "botToken": "your-telegram-bot-token",
+      "channelId": "@example_community"
+    },
+    "discord": {
+      "enabled": true,
+      "botToken": "your-discord-bot-token",
+      "guildId": "your-guild-id",
+      "channelId": "your-channel-id"
+    }
+  },
+  "widget": {
+    "enabled": true,
+    "title": "Example Assistant",
+    "welcomeMessage": "Hello! I'm your documentation assistant. How can I help you today?",
+    "suggestedQuestions": [
+      "How do I get started?",
+      "What are the main features?",
+      "How do I set up my development environment?",
+      "Where can I find API documentation?"
+    ],
+    "position": "bottom-right",
+    "theme": "auto",
+    "primaryColor": "#00A3FF"
+  },
+  "features": {
+    "ragEnabled": true,
+    "schedulerEnabled": false,
+    "chatEnabled": true,
+    "analyticsEnabled": false,
+    "versionHistoryEnabled": true
+  },
+  "admin": {
+    "token": "change_me_in_production",
+    "allowedOrigins": ["http://localhost:3762", "http://localhost:5173", "https://exampledocs.ai"]
+  }
+}

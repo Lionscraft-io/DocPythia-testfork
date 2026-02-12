@@ -1,0 +1,65 @@
+{
+  "domainId": "generic",
+  "name": "Generic Documentation",
+  "description": "Default configuration for general-purpose documentation analysis",
+  "categories": [
+    {
+      "id": "troubleshooting",
+      "label": "Troubleshooting",
+      "description": "Users solving problems, debugging issues, or encountering errors",
+      "priority": 90,
+      "examples": [
+        "Error messages and stack traces",
+        "Configuration issues",
+        "Performance problems"
+      ]
+    },
+    {
+      "id": "question",
+      "label": "Question",
+      "description": "Users asking how to accomplish something",
+      "priority": 85,
+      "examples": [
+        "How to configure a feature",
+        "Best practices questions",
+        "Implementation guidance"
+      ]
+    },
+    {
+      "id": "information",
+      "label": "Information",
+      "description": "Users sharing knowledge, tips, or solutions",
+      "priority": 80,
+      "examples": ["Solution sharing", "Tips and tricks", "Community knowledge"]
+    },
+    {
+      "id": "update",
+      "label": "Update",
+      "description": "Technology changes, version updates, or announcements",
+      "priority": 75,
+      "examples": ["New feature announcements", "Breaking changes", "Deprecation notices"]
+    },
+    {
+      "id": "no-doc-value",
+      "label": "No Documentation Value",
+      "description": "Messages that don't warrant documentation updates",
+      "priority": 0,
+      "examples": ["Social conversation", "Off-topic discussion", "Spam or noise"]
+    }
+  ],
+  "keywords": null,
+  "ragPaths": {
+    "exclude": ["i18n/**"]
+  },
+  "security": {
+    "blockPatterns": ["private[_\\s]?key", "secret[_\\s]?token", "api[_\\s]?key", "password"],
+    "requireApproval": false,
+    "maxProposalsPerBatch": 100
+  },
+  "context": {
+    "projectName": "Documentation",
+    "domain": "General",
+    "targetAudience": "All users",
+    "documentationPurpose": "Provide comprehensive technical documentation"
+  }
+}
