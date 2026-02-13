@@ -104,11 +104,25 @@ The IAM user or role running these setup commands needs the following permission
         "iam:GetRole",
         "iam:PutRolePolicy",
         "iam:AttachRolePolicy",
-        "iam:PassRole",
         "iam:CreateOpenIDConnectProvider",
         "iam:GetOpenIDConnectProvider"
       ],
       "Resource": "*"
+    },
+    {
+      "Sid": "IAMPassRole",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": [
+            "apprunner.amazonaws.com",
+            "build.apprunner.amazonaws.com",
+            "tasks.apprunner.amazonaws.com"
+          ]
+        }
+      }
     },
     {
       "Sid": "ECRManagement",
@@ -147,20 +161,24 @@ The IAM user or role running these setup commands needs the following permission
       "Resource": "*"
     },
     {
-      "Sid": "S3BucketManagement",
+      "Sid": "S3BucketOperations",
       "Effect": "Allow",
       "Action": [
         "s3:CreateBucket",
-        "s3:PutObject",
-        "s3:GetObject",
         "s3:ListBucket",
         "s3:PutBucketPolicy",
         "s3:GetBucketLocation"
       ],
-      "Resource": [
-        "arn:aws:s3:::docpythia-*",
-        "arn:aws:s3:::docpythia-*/*"
-      ]
+      "Resource": "arn:aws:s3:::docpythia-*"
+    },
+    {
+      "Sid": "S3ObjectOperations",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject"
+      ],
+      "Resource": "arn:aws:s3:::docpythia-*/*"
     },
     {
       "Sid": "SecretsManagerSetup",
