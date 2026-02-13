@@ -416,8 +416,8 @@ aws ec2 authorize-security-group-ingress \
   --group-id $DB_SG \
   --protocol tcp --port 5432 --cidr 0.0.0.0/0
 
-# Generate and save the password
-DB_PASSWORD=$(openssl rand -base64 24)
+# Generate and save the password (alphanumeric only to avoid RDS restrictions)
+DB_PASSWORD=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c 24)
 echo "Save this password: $DB_PASSWORD"
 
 # Find latest PostgreSQL 15.x version available in your region
