@@ -143,6 +143,7 @@ The IAM user or role running these setup commands needs the following permission
         "rds:CreateDBSubnetGroup",
         "rds:DescribeDBInstances",
         "rds:DescribeDBSubnetGroups",
+        "rds:DescribeDBEngineVersions",
         "rds:ModifyDBInstance"
       ],
       "Resource": "*"
@@ -419,10 +420,16 @@ aws ec2 authorize-security-group-ingress \
 DB_PASSWORD=$(openssl rand -base64 24)
 echo "Save this password: $DB_PASSWORD"
 
+# Find latest PostgreSQL 15.x version available in your region
+PG_VERSION=$(aws rds describe-db-engine-versions --engine postgres \
+  --query 'DBEngineVersions[?starts_with(EngineVersion, `15`)].EngineVersion' \
+  --output text | tr '\t' '\n' | sort -V | tail -1)
+echo "Using PostgreSQL version: $PG_VERSION"
+
 aws rds create-db-instance \
   --db-instance-identifier docpythia-db \
   --db-instance-class db.t3.micro \
-  --engine postgres --engine-version 15.7 \
+  --engine postgres --engine-version "$PG_VERSION" \
   --master-username docpythia \
   --master-user-password "$DB_PASSWORD" \
   --allocated-storage 20 \
