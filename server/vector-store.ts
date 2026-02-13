@@ -59,12 +59,18 @@ export class PgVectorStore implements VectorStore {
 
     // Create a pg Pool for direct SQL queries with pgvector
     // Configure SSL for RDS (accepts Amazon's certificate chain)
+    // Check both URL param and hostname to determine SSL config
     const sslMode = url.searchParams.get('sslmode');
-    const ssl = sslMode === 'require' ? { rejectUnauthorized: false } : undefined;
+    const isRds = url.hostname.includes('rds.amazonaws.com');
+    const needsSsl = sslMode === 'require' || isRds;
+
+    console.log(
+      `[PgVectorStore] SSL config: sslmode=${sslMode}, isRds=${isRds}, needsSsl=${needsSsl}`
+    );
 
     this.pool = new Pool({
       connectionString: databaseUrl,
-      ssl,
+      ssl: needsSsl ? { rejectUnauthorized: false } : undefined,
     });
 
     console.log(`PgVectorStore initialized for ${instanceId} (${config.database.name})`);
