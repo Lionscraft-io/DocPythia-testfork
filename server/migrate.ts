@@ -33,9 +33,11 @@ export async function initializeDatabase() {
           continue;
         }
 
-        // Build database URL for this instance
+        // Build database URL for this instance (preserve query params like sslmode)
         const baseUrl = process.env.DATABASE_URL || '';
-        const instanceDbUrl = baseUrl.replace(/\/[^/]+$/, `/${dbName}`);
+        const url = new URL(baseUrl);
+        url.pathname = url.pathname.replace(/\/[^/]+$/, `/${dbName}`);
+        const instanceDbUrl = url.toString();
 
         if (hasMigrations) {
           console.log(`📁 Running migrations for ${instanceId} (${dbName})...`);
@@ -65,7 +67,9 @@ export async function initializeDatabase() {
         try {
           const config = InstanceConfigLoader.get(instanceId);
           const baseUrl = process.env.DATABASE_URL || '';
-          const instanceDbUrl = baseUrl.replace(/\/[^/]+$/, `/${config.database?.name}`);
+          const url = new URL(baseUrl);
+          url.pathname = url.pathname.replace(/\/[^/]+$/, `/${config.database?.name}`);
+          const instanceDbUrl = url.toString();
 
           console.log(`🔄 Attempting to push schema for ${instanceId}...`);
           await pushSchema(instanceDbUrl);
