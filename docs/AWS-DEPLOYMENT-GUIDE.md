@@ -627,23 +627,20 @@ docker push ${ECR_URI}:latest
 
 ## 9. App Runner Service
 
-### 9.1 Get IAM role ARNs
+### 9.1 Get IAM role ARNs and set up variables
 
 ```bash
 ECR_ROLE_ARN=$(aws iam get-role --role-name docpythia-apprunner-ecr --query 'Role.Arn' --output text)
 INSTANCE_ROLE_ARN=$(aws iam get-role --role-name docpythia-apprunner-instance --query 'Role.Arn' --output text)
 ECR_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/docpythia"
+
+# Build secret ARNs (App Runner will fetch values automatically)
+SECRET_PREFIX="arn:aws:secretsmanager:${AWS_REGION}:${AWS_ACCOUNT_ID}:secret:docpythia"
 ```
 
-### 9.2 Retrieve secrets
+### 9.2 Create the service
 
-```bash
-DB_URL=$(aws secretsmanager get-secret-value --secret-id docpythia/database-url --query SecretString --output text)
-GEMINI_KEY=$(aws secretsmanager get-secret-value --secret-id docpythia/gemini-api-key --query SecretString --output text)
-ADMIN_TOKEN=$(aws secretsmanager get-secret-value --secret-id docpythia/admin-token --query SecretString --output text)
-```
-
-### 9.3 Create the service
+App Runner references secrets directly from Secrets Manager using `RuntimeEnvironmentSecrets`. When you update a secret, redeploy the service to pick up the new value.
 
 ```bash
 aws apprunner create-service \
@@ -661,15 +658,17 @@ aws apprunner create-service \
         "RuntimeEnvironmentVariables": {
           "NODE_ENV": "production",
           "PORT": "8080",
-          "DATABASE_URL": "'"$DB_URL"'",
-          "GEMINI_API_KEY": "'"$GEMINI_KEY"'",
-          "ADMIN_TOKEN": "'"$ADMIN_TOKEN"'",
           "CONFIG_SOURCE": "s3",
           "S3_BUCKET": "docpythia-config-'"$AWS_ACCOUNT_ID"'",
           "S3_REGION": "'"$AWS_REGION"'",
           "CONFIG_S3_PREFIX": "configs/",
           "SCHEDULER_ENABLED": "false",
           "STREAM_MANAGER_ENABLED": "true"
+        },
+        "RuntimeEnvironmentSecrets": {
+          "DATABASE_URL": "'"${SECRET_PREFIX}/database-url"'",
+          "GEMINI_API_KEY": "'"${SECRET_PREFIX}/gemini-api-key"'",
+          "ADMIN_TOKEN": "'"${SECRET_PREFIX}/admin-token"'"
         }
       }
     }
@@ -690,7 +689,7 @@ aws apprunner create-service \
   --region $AWS_REGION
 ```
 
-### 9.4 Wait and get the URL
+### 9.3 Wait and get the URL
 
 ```bash
 SERVICE_ARN=$(aws apprunner list-services \
@@ -714,7 +713,7 @@ SERVICE_URL=$(aws apprunner describe-service \
 echo "DocPythia is live at: https://${SERVICE_URL}"
 ```
 
-### 9.5 Add the service ARN to GitHub
+### 9.4 Add the service ARN to GitHub
 
 Now that the service exists, add `APPRUNNER_SERVICE_ARN` to your GitHub repository variables (see step 8.1) so that future CI runs auto-deploy:
 
@@ -723,7 +722,7 @@ echo "Add this to GitHub Actions variables as APPRUNNER_SERVICE_ARN:"
 echo "$SERVICE_ARN"
 ```
 
-### 9.6 Verify
+### 9.5 Verify
 
 > **Note:** The service won't be healthy until an image is pushed to ECR. If you haven't pushed an image yet, either push to `main` to trigger the CI pipeline (step 8.3), or build and push manually first.
 
