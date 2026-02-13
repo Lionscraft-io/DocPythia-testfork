@@ -538,17 +538,22 @@ aws s3 cp config/myinstance/instance.json \
 
 ## 6. Secrets Manager
 
+Store secrets using the variables from previous steps:
+
 ```bash
+# Database URL (uses DB_PASSWORD and DB_ENDPOINT from step 4)
 aws secretsmanager create-secret \
   --name docpythia/database-url \
   --description "DocPythia PostgreSQL connection string" \
-  --secret-string "postgresql://docpythia:YOUR_PASSWORD@YOUR_ENDPOINT:5432/docpythia"
+  --secret-string "postgresql://docpythia:${DB_PASSWORD}@${DB_ENDPOINT}:5432/docpythia"
 
+# Gemini API key (replace with your actual key)
 aws secretsmanager create-secret \
   --name docpythia/gemini-api-key \
   --description "Google Gemini API key" \
   --secret-string "YOUR_GEMINI_API_KEY"
 
+# Admin token (auto-generated)
 aws secretsmanager create-secret \
   --name docpythia/admin-token \
   --description "DocPythia admin API token" \
