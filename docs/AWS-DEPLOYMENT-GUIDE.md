@@ -701,8 +701,16 @@ aws apprunner create-service \
 SERVICE_ARN=$(aws apprunner list-services \
   --query "ServiceSummaryList[?ServiceName=='docpythia'].ServiceArn" --output text)
 
-echo "Waiting for App Runner service..."
-aws apprunner wait service-running --service-arn $SERVICE_ARN
+# Wait for service to be running (takes 2-5 minutes)
+echo "Waiting for App Runner service to start..."
+while true; do
+  STATUS=$(aws apprunner describe-service --service-arn $SERVICE_ARN \
+    --query 'Service.Status' --output text)
+  echo "Status: $STATUS"
+  if [ "$STATUS" = "RUNNING" ]; then break; fi
+  if [ "$STATUS" = "CREATE_FAILED" ]; then echo "Service creation failed!"; exit 1; fi
+  sleep 15
+done
 
 SERVICE_URL=$(aws apprunner describe-service \
   --service-arn $SERVICE_ARN \
