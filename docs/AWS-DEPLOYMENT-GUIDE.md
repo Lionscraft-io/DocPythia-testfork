@@ -347,9 +347,15 @@ aws iam put-role-policy --role-name docpythia-github-deploy \
     "Version": "2012-10-17",
     "Statement": [
       {
+        "Sid": "ECRAuth",
+        "Effect": "Allow",
+        "Action": "ecr:GetAuthorizationToken",
+        "Resource": "*"
+      },
+      {
+        "Sid": "ECRPush",
         "Effect": "Allow",
         "Action": [
-          "ecr:GetAuthorizationToken",
           "ecr:BatchCheckLayerAvailability",
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchGetImage",
@@ -358,15 +364,20 @@ aws iam put-role-policy --role-name docpythia-github-deploy \
           "ecr:UploadLayerPart",
           "ecr:CompleteLayerUpload"
         ],
-        "Resource": "*"
+        "Resource": "arn:aws:ecr:'"$AWS_REGION"':'"$AWS_ACCOUNT_ID"':repository/docpythia"
       },
       {
+        "Sid": "AppRunnerDeploy",
         "Effect": "Allow",
-        "Action": ["apprunner:StartDeployment"],
+        "Action": "apprunner:StartDeployment",
         "Resource": "arn:aws:apprunner:'"$AWS_REGION"':'"$AWS_ACCOUNT_ID"':service/docpythia/*"
       }
     ]
   }'
+
+# Note: The App Runner resource uses docpythia/* to match service IDs.
+# For tighter security, replace with the exact service ARN after creation:
+#   arn:aws:apprunner:<region>:<account>:service/docpythia/<service-id>
 
 echo "Deploy role ARN (save this for GitHub setup):"
 echo "arn:aws:iam::${AWS_ACCOUNT_ID}:role/docpythia-github-deploy"
