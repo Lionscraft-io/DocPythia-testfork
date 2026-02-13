@@ -421,15 +421,23 @@ DB_PASSWORD=$(openssl rand -base64 24)
 echo "Save this password: $DB_PASSWORD"
 
 # Find latest PostgreSQL 15.x version available in your region
+# (omit --engine-version to use the default if this fails)
 PG_VERSION=$(aws rds describe-db-engine-versions --engine postgres \
   --query 'DBEngineVersions[?starts_with(EngineVersion, `15`)].EngineVersion' \
-  --output text | tr '\t' '\n' | sort -V | tail -1)
-echo "Using PostgreSQL version: $PG_VERSION"
+  --output text 2>/dev/null | tr '\t' '\n' | sort -V | tail -1)
+
+if [ -n "$PG_VERSION" ]; then
+  echo "Using PostgreSQL version: $PG_VERSION"
+  ENGINE_VERSION_ARG="--engine-version $PG_VERSION"
+else
+  echo "Could not detect version, using RDS default for PostgreSQL 15"
+  ENGINE_VERSION_ARG=""
+fi
 
 aws rds create-db-instance \
   --db-instance-identifier docpythia-db \
   --db-instance-class db.t3.micro \
-  --engine postgres --engine-version "$PG_VERSION" \
+  --engine postgres $ENGINE_VERSION_ARG \
   --master-username docpythia \
   --master-user-password "$DB_PASSWORD" \
   --allocated-storage 20 \
