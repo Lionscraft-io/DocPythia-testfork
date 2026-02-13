@@ -423,7 +423,7 @@ echo "Save this password: $DB_PASSWORD"
 # Find latest PostgreSQL 15.x version available in your region
 # (omit --engine-version to use the default if this fails)
 PG_VERSION=$(aws rds describe-db-engine-versions --engine postgres \
-  --query 'DBEngineVersions[?starts_with(EngineVersion, `15`)].EngineVersion' \
+  --query "DBEngineVersions[?starts_with(EngineVersion, '15')].EngineVersion" \
   --output text 2>/dev/null | tr '\t' '\n' | sort -V | tail -1)
 
 if [ -n "$PG_VERSION" ]; then
