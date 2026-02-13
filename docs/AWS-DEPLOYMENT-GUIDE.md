@@ -44,12 +44,7 @@ Deploy DocPythia from a fresh AWS account to a production-ready setup using App 
 7. [ECR Repository](#7-ecr-repository)
 8. [GitHub Actions OIDC + Repository Setup](#8-github-actions-oidc--repository-setup)
 9. [App Runner Service](#9-app-runner-service)
-10. [Custom Domain (Optional)](#10-custom-domain-optional)
-11. [Monitoring and Alarms](#11-monitoring-and-alarms)
-12. [Post-Deployment Setup](#12-post-deployment-setup)
-13. [Multi-Instance Setup](#13-multi-instance-setup)
-14. [Deploying Updates](#14-deploying-updates)
-15. [Troubleshooting](#15-troubleshooting)
+10. [Post-Deployment Setup](#10-post-deployment-setup)
 
 ---
 
@@ -744,269 +739,53 @@ aws logs tail "/aws/apprunner/docpythia" --since 10m
 
 ---
 
-## 10. Custom Domain (Optional)
+## 10. Post-Deployment Setup
 
-### 10.1 Associate with App Runner
+### 10.1 Set your admin password
 
-```bash
-aws apprunner associate-custom-domain \
-  --service-arn $SERVICE_ARN \
-  --domain-name docs.yourdomain.com \
-  --enable-www-subdomain
-```
-
-### 10.2 Add DNS records
-
-Get the validation CNAME records:
+Your instance configuration (uploaded to S3 in step 5) needs a bcrypt password hash for admin login. Generate one:
 
 ```bash
-aws apprunner describe-custom-domains \
-  --service-arn $SERVICE_ARN \
-  --query 'CustomDomains[0].CertificateValidationRecords'
+node -e "const bcrypt = require('bcrypt'); bcrypt.hash('your-secure-password', 12).then(h => console.log(h));"
 ```
 
-Add these CNAME records to your DNS provider (Route 53, Cloudflare, etc.). SSL is handled automatically by App Runner.
-
-### 10.3 Update WIDGET_DOMAIN
-
-Update the `WIDGET_DOMAIN` GitHub Actions variable to your custom domain, then push a commit to trigger a rebuild with the correct domain baked in.
-
----
-
-## 11. Monitoring and Alarms
-
-### 11.1 View logs
-
-```bash
-# Find the log group
-aws logs describe-log-groups --log-group-name-prefix "/aws/apprunner/docpythia"
-
-# Tail logs
-aws logs tail "/aws/apprunner/docpythia/<service-id>/application" --follow
-```
-
-### 11.2 Set up CloudWatch alarms
-
-```bash
-# Create SNS topic for alerts
-aws sns create-topic --name docpythia-alerts
-aws sns subscribe \
-  --topic-arn arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:docpythia-alerts \
-  --protocol email --notification-endpoint your@email.com
-
-# Alarm: High 5xx error rate
-aws cloudwatch put-metric-alarm \
-  --alarm-name docpythia-high-error-rate \
-  --metric-name 5xxStatusResponses \
-  --namespace AWS/AppRunner \
-  --statistic Sum --period 300 --threshold 10 \
-  --comparison-operator GreaterThanThreshold \
-  --evaluation-periods 2 \
-  --dimensions Name=ServiceName,Value=docpythia \
-  --alarm-actions arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:docpythia-alerts
-
-# Alarm: Unhealthy instances
-aws cloudwatch put-metric-alarm \
-  --alarm-name docpythia-unhealthy \
-  --metric-name UnhealthyInstanceCount \
-  --namespace AWS/AppRunner \
-  --statistic Maximum --period 60 --threshold 1 \
-  --comparison-operator GreaterThanOrEqualToThreshold \
-  --evaluation-periods 3 \
-  --dimensions Name=ServiceName,Value=docpythia \
-  --alarm-actions arn:aws:sns:${AWS_REGION}:${AWS_ACCOUNT_ID}:docpythia-alerts
-```
-
----
-
-## 12. Post-Deployment Setup
-
-### 12.1 Access the admin dashboard
-
-```
-https://<SERVICE_URL>/admin
-```
-
-### 12.2 Configure your first instance
-
-Upload an instance config to S3 (see `config/instance.example.json` for the full schema).
-
-First, generate a bcrypt hash for the admin password:
-
-```bash
-node -e "const bcrypt = require('bcrypt'); bcrypt.hash('your-password', 12).then(h => console.log(h));"
-```
-
-Then create the config with that hash:
+Update your `instance.json` with the hash:
 
 ```json
 {
-  "project": {
-    "name": "My Project",
-    "shortName": "myproject",
-    "description": "AI-powered documentation assistant",
-    "domain": "myproject.org"
-  },
-  "documentation": {
-    "gitUrl": "https://github.com/your-org/your-docs",
-    "branch": "main",
-    "docsPath": ""
-  },
-  "database": {
-    "name": "docpythia"
-  },
   "admin": {
-    "passwordHash": "<paste-bcrypt-hash-here>",
-    "allowedOrigins": ["https://your-domain.com"]
+    "passwordHash": "$2b$12$...<your-hash-here>...",
+    "allowedOrigins": ["https://your-app-runner-url.awsapprunner.com"]
   }
 }
 ```
 
-### 12.3 Trigger initial documentation sync
+Re-upload to S3:
 
 ```bash
-curl -X POST "https://${SERVICE_URL}/api/admin/docs/sync" \
-  -H "Authorization: Bearer ${ADMIN_TOKEN}"
+aws s3 cp config/myinstance/instance.json \
+  s3://docpythia-config-${AWS_ACCOUNT_ID}/configs/myinstance/instance.json
 ```
+
+### 10.2 Access the admin dashboard
+
+The admin dashboard is available at your instance path:
+
+```
+https://<SERVICE_URL>/<instance-name>/admin
+```
+
+For example, if your instance is named `myinstance`:
+```
+https://abc123.eu-central-1.awsapprunner.com/myinstance/admin
+```
+
+Log in with the password you hashed above.
+
+### 10.3 Sync documentation
+
+From the admin dashboard, navigate to the Documentation section and click **Sync** to import your documentation from the configured Git repository.
 
 ---
 
-## 13. Multi-Instance Setup
-
-DocPythia supports multiple project instances from a single deployment. Each instance gets its own database, configuration, and admin dashboard at `/{instanceId}/admin`.
-
-```bash
-# Create a database per instance
-psql "$DATABASE_URL" -c "CREATE DATABASE myproject_docs;"
-
-# Run migrations
-DATABASE_URL="postgresql://docpythia:pass@host:5432/myproject_docs" npx prisma migrate deploy
-
-# Upload config to S3
-aws s3 cp config/myproject/instance.json \
-  s3://docpythia-config-${AWS_ACCOUNT_ID}/configs/myproject/instance.json
-
-# Access at:
-# https://<SERVICE_URL>/myproject/admin
-```
-
-See `config/instance.example.json` for the full configuration schema.
-
----
-
-## 14. Deploying Updates
-
-With GitHub Actions CI/CD, deploying is simple:
-
-```bash
-# 1. Make your changes on a feature branch
-git checkout -b my-feature
-
-# 2. Push and create a PR (CI runs tests)
-git push -u origin my-feature
-
-# 3. Merge to main (CI builds image, pushes to ECR, triggers App Runner deploy)
-```
-
-The pipeline automatically:
-1. Runs tests against a pgvector database
-2. Builds the Docker image with your `WIDGET_DOMAIN`
-3. Pushes to ECR with tags: `latest`, package.json version, and git SHA
-4. Triggers an App Runner redeployment
-
-**Manual rollback** to a previous version:
-
-```bash
-# Find the image tag you want to roll back to
-aws ecr describe-images --repository-name docpythia \
-  --query 'imageDetails[*].{tags:imageTags,pushed:imagePushedAt}' \
-  --output table
-
-# Update App Runner to use a specific tag
-aws apprunner update-service \
-  --service-arn $SERVICE_ARN \
-  --source-configuration '{
-    "ImageRepository": {
-      "ImageIdentifier": "'"$ECR_URI:<tag>"'",
-      "ImageRepositoryType": "ECR"
-    }
-  }'
-```
-
----
-
-## 15. Troubleshooting
-
-### App Runner deployment fails
-
-```bash
-aws apprunner describe-service --service-arn $SERVICE_ARN --query 'Service.Status'
-aws logs tail "/aws/apprunner/docpythia/<service-id>/application" --since 30m
-```
-
-### Health check failing
-
-Common causes: wrong DATABASE_URL, port mismatch (must be 8080), migrations not run.
-
-Test locally:
-```bash
-docker run -p 8080:8080 \
-  -e DATABASE_URL="your-db-url" \
-  -e GEMINI_API_KEY="your-key" \
-  -e ADMIN_TOKEN="test" \
-  -e NODE_ENV=production \
-  -e PORT=8080 \
-  docpythia:latest
-```
-
-### Database connection refused
-
-- Check the RDS security group allows inbound on port 5432
-- Verify `--publicly-accessible` was set on the RDS instance
-- Verify the endpoint: `aws rds describe-db-instances --db-instance-identifier docpythia-db`
-
-### GitHub Actions can't push to ECR
-
-- Verify `AWS_DEPLOY_ROLE_ARN` and `AWS_REGION` are set in GitHub Actions variables (not secrets)
-- Check the OIDC provider was created (step 3.3)
-- Verify the trust policy references the correct `repo:org/name:ref:refs/heads/main`
-
-### Cold starts / slow wake-up
-
-```bash
-aws apprunner update-service \
-  --service-arn $SERVICE_ARN \
-  --auto-scaling-configuration-arn $(aws apprunner create-auto-scaling-configuration \
-    --auto-scaling-configuration-name docpythia-scaling \
-    --min-size 1 --max-size 2 \
-    --query 'AutoScalingConfiguration.AutoScalingConfigurationArn' --output text)
-```
-
----
-
-## Quick Reference
-
-```bash
-# Deploy: just merge to main. CI handles the rest.
-
-# Manual deploy trigger
-aws apprunner start-deployment --service-arn $SERVICE_ARN
-
-# View logs
-aws logs tail "/aws/apprunner/docpythia/<service-id>/application" --follow
-
-# Health check
-curl https://${SERVICE_URL}/api/health
-
-# Trigger processing
-curl -X POST "https://${SERVICE_URL}/api/admin/stream/process" \
-  -H "Authorization: Bearer ${ADMIN_TOKEN}"
-
-# Check message backlog
-psql "$DATABASE_URL" \
-  -c "SELECT COUNT(*) FROM \"unifiedMessage\" WHERE \"processingStatus\" = 'PENDING';"
-
-# Rollback
-aws apprunner update-service --service-arn $SERVICE_ARN \
-  --source-configuration '{"ImageRepository":{"ImageIdentifier":"'"$ECR_URI:<previous-tag>"'"}}'
-```
+**Deployment complete!** Your DocPythia instance is now running on AWS App Runner.
