@@ -302,7 +302,9 @@ aws iam put-role-policy --role-name docpythia-apprunner-instance \
 
 ### 3.3 Create a GitHub Actions OIDC deploy role
 
-This allows GitHub Actions to authenticate with AWS without storing long-lived credentials:
+This allows GitHub Actions to authenticate with AWS without storing long-lived credentials.
+
+> **For forks:** Replace `GITHUB_ORG` and `GITHUB_REPO` below with your GitHub username/organization and repository name.
 
 ```bash
 # Create the OIDC identity provider (one-time per AWS account)
@@ -311,9 +313,12 @@ aws iam create-open-id-connect-provider \
   --client-id-list sts.amazonaws.com \
   --thumbprint-list 6938fd4d98bab03faadb97b34396831e3780aea1
 
-# Create the deploy role (replace GITHUB_ORG/REPO with your values)
-GITHUB_ORG="Lionscraft-io"
-GITHUB_REPO="DocPythia"
+# Set your GitHub org/username and repo name
+# Examples:
+#   GITHUB_ORG="my-username"    GITHUB_REPO="DocPythia"     (personal fork)
+#   GITHUB_ORG="my-company"     GITHUB_REPO="docpythia"     (org fork)
+GITHUB_ORG="your-github-username-or-org"
+GITHUB_REPO="your-repo-name"
 
 aws iam create-role --role-name docpythia-github-deploy \
   --assume-role-policy-document '{
