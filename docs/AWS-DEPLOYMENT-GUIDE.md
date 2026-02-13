@@ -442,13 +442,13 @@ DB_ENDPOINT=$(aws rds describe-db-instances \
   --query 'DBInstances[0].Endpoint.Address' --output text)
 
 echo "Database endpoint: $DB_ENDPOINT"
-echo "DATABASE_URL: postgresql://docpythia:${DB_PASSWORD}@${DB_ENDPOINT}:5432/docpythia"
+echo "DATABASE_URL: postgresql://docpythia:${DB_PASSWORD}@${DB_ENDPOINT}:5432/docpythia?sslmode=require"
 ```
 
 Enable pgvector:
 
 ```bash
-psql "postgresql://docpythia:${DB_PASSWORD}@${DB_ENDPOINT}:5432/docpythia" \
+psql "postgresql://docpythia:${DB_PASSWORD}@${DB_ENDPOINT}:5432/docpythia?sslmode=require" \
   -c "CREATE EXTENSION IF NOT EXISTS vector;"
 ```
 
@@ -458,10 +458,10 @@ From your local machine, using the variables from the previous steps:
 
 ```bash
 # Option A: Use shell variables (if still in same session)
-export DATABASE_URL="postgresql://docpythia:${DB_PASSWORD}@${DB_ENDPOINT}:5432/docpythia"
+export DATABASE_URL="postgresql://docpythia:${DB_PASSWORD}@${DB_ENDPOINT}:5432/docpythia?sslmode=require"
 
 # Option B: Set values directly (if starting a new session)
-# export DATABASE_URL="postgresql://docpythia:<your-password>@<your-endpoint>:5432/docpythia"
+# export DATABASE_URL="postgresql://docpythia:<your-password>@<your-endpoint>:5432/docpythia?sslmode=require"
 
 # Verify the connection string
 echo "DATABASE_URL: $DATABASE_URL"
@@ -531,7 +531,7 @@ Store secrets using the variables from previous steps:
 aws secretsmanager create-secret \
   --name docpythia/database-url \
   --description "DocPythia PostgreSQL connection string" \
-  --secret-string "postgresql://docpythia:${DB_PASSWORD}@${DB_ENDPOINT}:5432/docpythia"
+  --secret-string "postgresql://docpythia:${DB_PASSWORD}@${DB_ENDPOINT}:5432/docpythia?sslmode=require"
 
 # Gemini API key (replace with your actual key)
 aws secretsmanager create-secret \
