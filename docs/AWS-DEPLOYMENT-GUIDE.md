@@ -387,9 +387,14 @@ echo "arn:aws:iam::${AWS_ACCOUNT_ID}:role/docpythia-github-deploy"
 
 ## 4. Database Setup
 
+> **Note:** This guide uses the default VPC for simplicity. If your account doesn't have a default VPC, or you prefer to use a different VPC, replace `DEFAULT_VPC` with your VPC ID.
+
 ```bash
 DEFAULT_VPC=$(aws ec2 describe-vpcs --filters "Name=isDefault,Values=true" \
   --query "Vpcs[0].VpcId" --output text)
+
+# Verify VPC was found (should not be "None")
+echo "Using VPC: $DEFAULT_VPC"
 
 SUBNET_IDS=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$DEFAULT_VPC" \
   --query "Subnets[*].SubnetId" --output text | tr '\t' ',')
